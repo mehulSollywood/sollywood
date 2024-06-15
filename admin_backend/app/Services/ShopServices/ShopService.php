@@ -119,6 +119,7 @@ class ShopService extends CoreService implements ShopServiceInterface
             'type_of_business' => $collection['type_of_business'] ?? null,
             'category' =>      $collection['category'] ?? null,
             'commission' =>      $collection['commission'] ?? null,
+            'adhar' =>        $collection['adhar'] ?? null,
             'pan' =>        $collection['pan'] ?? null,
             'business_res_certi' =>       $collection['business_res_certi'] ?? null,
             'gst' =>        $collection['gst'] ?? null,

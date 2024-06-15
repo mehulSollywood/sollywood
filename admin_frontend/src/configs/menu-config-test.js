@@ -141,6 +141,12 @@ const adminRoutes = [
         url: 'catalog/groups',
         id: 'catalog-groups',
       },
+      {
+        name: 'shopList',
+        icon: '',
+        url: 'shoplist',
+        id: 'shoplist',
+      },
     ],
   },
   {

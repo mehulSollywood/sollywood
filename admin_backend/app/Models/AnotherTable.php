@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\GiftSetting;
 
 class AnotherTable extends Model
 {
@@ -31,4 +32,15 @@ class AnotherTable extends Model
         $this->fill($order->toArray());
         return $this->save();
     }
-}
+	 public function saveRecord_new($user)
+    {
+        // Perform the save operation
+        $this->type = 'gift_in';
+        $this->amount = GiftSetting::value('gift_amount');
+        $this->user_id = $user->id;
+        $this->order_id = $user->id; // Assuming order_id is same as user id for now
+        $this->save();
+
+        return $this; // Return the saved instance
+    }
+	}

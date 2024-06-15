@@ -3,6 +3,7 @@ namespace App\Http\Controllers\API\v1\Dashboard\Admin;
 
 use Carbon\Carbon;
 use App\Models\Shop;
+use App\Models\ShopList;
 use App\Exports\ShopExport;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -10,6 +11,7 @@ use App\Helpers\ResponseError;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\ShopResource;
+use App\Http\Resources\ShopListResource;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Requests\DeleteAllRequest;
 use Illuminate\Support\Facades\Storage;
@@ -228,4 +230,6 @@ class ShopController extends AdminBaseController
         }
         return $this->errorResponse('Error during export');
     }
+
+    
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\v1\Dashboard\Admin;
+namespace App\Http\Controllers\API\v1\Auth;
 
 use App\Helpers\ResponseError;
 use App\Http\Controllers\Controller;
@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Twilio\Exceptions\ConfigurationException;
 use Carbon\Carbon;
 
-class GiftNotificationController extends AdminBaseController
+class GiftNotificationController extends Controller
 {
     use ApiResponse;
 
@@ -83,6 +83,8 @@ class GiftNotificationController extends AdminBaseController
                     $error = curl_error($curl);
                     // Handle the error appropriately, such as logging it
                     echo "cURL Error: " . $error;
+                }else{
+                    echo "done";
                 }
                 
                 // Close cURL session

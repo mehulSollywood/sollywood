@@ -41,8 +41,9 @@ class OrderController extends UserBaseController
      */
     public function paginate(FilterParamsRequest $request): AnonymousResourceCollection
     {
+       
         $orders = $this->orderRepository->ordersPaginate($request->perPage ?? 15,
-            auth('sanctum')->id(), $request->all());
+            auth('sanctum')->id(), $request->all()); 
             return OrderResource::collection($orders);
     }
 

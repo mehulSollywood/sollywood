@@ -37,6 +37,7 @@ use Illuminate\Support\Carbon;
  * @property int $shop_id
  * @property float $tax
  * @property float|null $commission_fee
+ * @property int|null $cashback_amount
  * @property double|null $money_back
  * @property string $status
  * @property int|null $delivery_address_id

@@ -9,6 +9,7 @@ use App\Http\Controllers\API\v1\Dashboard\Payment;
 use App\Http\Controllers\API\v1\Dashboard\Seller;
 use App\Http\Controllers\API\v1\GalleryController;
 use App\Http\Controllers\API\v1\Auth\LoginController;
+use App\Http\Controllers\API\v1\Auth\GiftNotificationController;
 use App\Http\Controllers\API\v1\Dashboard\Deliveryman;
 use App\Http\Controllers\API\v1\Auth\RegisterController;
 use App\Http\Controllers\API\v1\Auth\UserReferralController;
@@ -53,9 +54,12 @@ Route::group(['prefix' => 'v1', 'middleware' => ['localization']], function () {
     Route::post('/auth/forgot/email-password/{hash}', [LoginController::class, 'forgetPasswordVerifyEmail'])
         ->middleware('sessions');
 
+      // sent gift notification  
+     Route::get('auth/gift/notification', [GiftNotificationController::class, 'giftNotification']);
     // Route::get('/login/{provider}', [LoginController::class,'redirectToProvider']);
     Route::post('/auth/{provider}/callback', [LoginController::class, 'handleProviderCallback']);
-
+    
+    
 
     Route::group(['prefix' => 'install'], function () {
         Route::get('/init/check', [Rest\InstallController::class, 'checkInitFile']);
@@ -257,6 +261,12 @@ Route::group(['prefix' => 'v1', 'middleware' => ['localization']], function () {
 
                 /* Shop */
                 Route::post('shops', [User\ShopController::class, 'store']);
+                Route::get('shops/shoplist', [User\ShopController::class, 'shoplist']);
+                
+
+                  // shop List //
+                  Route::get('shopList', [User\ShopController::class, 'showShopList']);
+                  Route::get('showShopList/{id}', [User\ShopController::class, 'getshoplist']);
 
                 /* Ticket */
                 Route::get('tickets/paginate', [User\TicketController::class, 'paginate']);
@@ -295,6 +305,10 @@ Route::group(['prefix' => 'v1', 'middleware' => ['localization']], function () {
                 Route::post('become-deliveryman',[User\DeliveryManController::class,'becomeDeliveryman']);
 
                 Route::get('my-gift-carts',[User\GiftCartController::class,'myGiftCarts']);
+
+                 /* gift and caseback history */
+                Route::get('gift/history', [User\GiftCashbackController::class, 'GiftHistory']);
+                Route::get('cashback/history', [User\GiftCashbackController::class, 'CashbackHistory']);
 
 
                 Route::apiResource('wallet/request', User\WalletRequestController::class);
@@ -652,6 +666,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['localization']], function () {
                 Route::delete('shops', [Admin\ShopController::class, 'destroy']);
                 Route::apiResource('shops', Admin\ShopController::class);
 
+              
+
                 /* Products */
                 Route::get('products/paginate', [Admin\ProductController::class, 'paginate']);
                 Route::get('products/search', [Admin\ProductController::class, 'productsSearch']);
@@ -668,11 +684,9 @@ Route::group(['prefix' => 'v1', 'middleware' => ['localization']], function () {
                 Route::delete('points', [Admin\PointController::class, 'destroy']);
                 Route::apiResource('points', Admin\PointController::class);
 
-                Route::get('gift/notification', [Admin\GiftNotificationController::class, 'giftNotification']);
+             
 
-                /* gift and caseback history */
-                Route::get('gift/history', [Admin\GiftCashbackController::class, 'GiftHistory']);
-                Route::get('cashback/history', [Admin\GiftCashbackController::class, 'CashbackHistory']);
+                
 
                 /* Orders */
                 Route::get('orders/paginate', [Admin\OrderController::class, 'paginate']);

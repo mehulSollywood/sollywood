@@ -105,7 +105,7 @@ class ProductController extends RestBaseController
             Response::HTTP_NOT_FOUND
         );
     }
-
+	
     public function productsByShopUuid(FilterParamsRequest $request, string $uuid): JsonResponse|AnonymousResourceCollection
     {
         $shop = (new ShopRepository())->shopDetails($uuid);
@@ -227,22 +227,21 @@ class ProductController extends RestBaseController
         $products = $this->restProductRepository->buyWithProduct($id);
         return ShopProductResource::collection($products);
     }
+    
     public function getCashback(Request $request): JsonResponse
     {
         $user = User::where('uuid', $request->user_token)->first();
         $user_id = User::where('uuid', $user->uuid)->get('id')->toArray();
         $referral_to = User::where('referral',$user->my_referral)->get('firstname')->toArray();
         $referral_userId = User::where('referral',$user->my_referral)->get('id')->toArray();
-        $compare_userId = UserCart::whereIn('user_id', $referral_userId)->whereDate('created_at', today())->pluck('id')->toArray();
-        sort($compare_userId);
-        $compare_uuid =$compare_userId;
-        // dd($compare_uuid);
-        $compare_names = UserCart::whereIn('id', $compare_uuid)->pluck('name')->toArray();
-        $matched_names = [];
+      $compare_userId = UserCart::whereIn('user_id', $referral_userId)->pluck('id')->toArray();
+      sort($compare_userId);
+      $compare_uuid =$compare_userId;
+      $compare_names = UserCart::whereIn('id', $compare_uuid)->pluck('name')->toArray();
+      $matched_names = [];
         $shop_id = Shop::where('user_id',$referral_userId)->get('id')->toArray();
-        $cart_det = CartDetail::whereIn('user_cart_id', $compare_uuid)->get(['price', 'quantity'])->toArray();
+      $cart_det = CartDetail::whereIn('user_cart_id', $compare_uuid)->get(['price', 'quantity'])->toArray();
         $cart_details = CartDetail::whereIn('user_cart_id', $compare_uuid)->get(['price', 'quantity','shop_product_id','user_cart_id']);
-        // dd($cart_details);
         $matched_cart_details = [];
         foreach ($cart_details as $detail) {
             if (in_array($detail->user_cart_id, $compare_uuid)) {
@@ -268,25 +267,17 @@ class ProductController extends RestBaseController
        $category_ids = array_merge($category_ids_for_duplicates, $category_ids_for_non_duplicates);
         $category_ids_unique = array_unique($category_ids);
         $referral_percentages = Category::whereIn('id', $category_ids_unique)->pluck('referralPercentage', 'id')->toArray();
-        $gst_percentages = Category::whereIn('id', $category_ids_unique)->pluck('gstPercentage', 'id')->toArray();
-       // dd($gst_percentages);
         $referral_percentage_for_duplicates = [];
         $referral_percentage_for_non_duplicates = [];
-        $gst_percentage_for_duplicates = [];
-        $gst_percentage_for_non_duplicates = [];
         foreach ($category_ids as $category_id) {
             $referral_percentage = $referral_percentages[$category_id];
-            $gst_percentage = $gst_percentages[$category_id];
             if (in_array($category_id, $category_ids_unique)) {
                 $referral_percentage_for_duplicates[] = $referral_percentage;
-                $gst_percentage_for_non_duplicates[] = $gst_percentage;
             } else {
                 $referral_percentage_for_non_duplicates[] = $referral_percentage;
-                $gst_percentage_for_non_duplicates[] = $gst_percentage;
             }
         }
         $all_referral_percentages = array_merge($referral_percentage_for_duplicates, $referral_percentage_for_non_duplicates);
-        $all_gst_percentages = array_merge($gst_percentage_for_duplicates, $gst_percentage_for_non_duplicates);
        $total_price_percentage_sum = 0;
        $max_total_purchase = 0;
         $max_purchase_name = '';
@@ -298,8 +289,7 @@ class ProductController extends RestBaseController
             ];
        
             $product['total_price_percentage'] = ($product['total_purchase'] * $all_referral_percentages[array_search($cart_detail->user_cart_id, $compare_uuid)]) / 100;
-            $product['final_total_price_percentage'] = ($product['total_price_percentage'] * $all_gst_percentages[array_search($cart_detail->user_cart_id, $compare_uuid)]) / 100;
-            $total_price_percentage_sum += $product['final_total_price_percentage'];
+            $total_price_percentage_sum += $product['total_price_percentage'];
             
             if ($product['total_purchase'] > $max_total_purchase) {
                 $max_total_purchase = $product['total_purchase'];
@@ -310,20 +300,18 @@ class ProductController extends RestBaseController
         }
         if (!empty($price_quantity_product)) {
             $shop_product_ids = CartDetail::whereIn('user_cart_id', $compare_uuid)->pluck('shop_product_id')->toArray();
-            $today = now()->toDateString();
-            $purchase_date = CartDetail::whereDate('created_at', $today)->pluck('shop_product_id')->toArray();
-         
-            $shop_product_ids_today = array_intersect($shop_product_ids, $purchase_date);
-           $products =  Product::whereIn('id', $shop_product_ids_today)->get([ 'id','category_id'])->toArray();
-        //   dd($products);
+           $products =  Product::whereIn('id', $shop_product_ids)->get([ 'id','category_id'])->toArray();
             $products_cId = Product::whereIn('id', $shop_product_ids)->get( 'category_id')->toArray();
             $products_id = Product::whereIn('id', $shop_product_ids)->get('id')->toArray();
             $referral_percentages = []; 
        
-            $giftSettings = GiftSetting::value('gift_amount'); 
+            $giftAmount = GiftSetting::value('gift_amount');
+            $giftSettings = trim($giftAmount, '"');
+            $giftSettings = intval($giftSettings);
+
             $cartId = UserCart::where('user_id', $referral_userId)->get('cart_id')->toArray();
             foreach ($products as $product) {
-                $category_ids = Product::whereIn('id', $shop_product_ids_today)->get('category_id')->toArray();
+                $category_ids = Product::whereIn('id', $shop_product_ids)->get('category_id')->toArray();
              $referral_percentage = Category::whereIn('id', $category_ids)->pluck('referralPercentage')->toArray();
             }  
             $response = [
@@ -334,7 +322,7 @@ class ProductController extends RestBaseController
                 'purchases' => $price_quantity_product,
                 'max_purchase_name' => $max_purchase_name, 
                 'total_caseback' => $total_price_percentage_sum,
-                'gift_amount'=> $giftSettings
+				'gift_amount'=> $giftSettings
             ];
             
         
@@ -347,23 +335,27 @@ class ProductController extends RestBaseController
         return $this->successResponse("fetch referral user succesfully",["referral_to"=>array_column($referral_to,"firstname"),"referral_userId"=>array_column($referral_userId,"uuid")]);
     
     }
-
-    // caseback notification
-
-
-    public function CashbackNotification()
+	
+	 public function CashbackNotification()
     {
         $users = User::all();
       
+        $a = [];
         foreach($users as $user){
             $referral_userId = User::where('referral',$user->my_referral)->get('id')->toArray();
-            $device_id = $user->device_id;
+         $firebase_token = $user->firebase_token;
+		 if(empty($firebase_token)) continue;
+		  
+	//	dd($firebase_token);
+
+
+
+            
             $compare_userId = UserCart::whereIn('user_id', $referral_userId)->whereDate('created_at', today())->pluck('id')->toArray();
             sort($compare_userId);
             $compare_uuid = $compare_userId;
-      
             $cart_details = CartDetail::whereIn('user_cart_id', $compare_uuid)->get(['price', 'quantity','shop_product_id','user_cart_id']);
-            
+
             $matched_cart_details = [];
             foreach ($cart_details as $detail) {
                 if (in_array($detail->user_cart_id, $compare_uuid)) {
@@ -372,15 +364,13 @@ class ProductController extends RestBaseController
             }
 
             $shop_product_ids = CartDetail::whereIn('user_cart_id', $compare_uuid)->pluck('shop_product_id')->toArray();
-           
             $product_id_counts = array_count_values($shop_product_ids);
             $product_ids = array_keys($product_id_counts);
             $category_ids = Product::whereIn('id', $product_ids)->pluck('category_id', 'id')->toArray();
-           
             $category_ids_for_duplicates = [];
             $category_ids_for_non_duplicates = [];
             
-            foreach ($product_id_counts as $product_id => $count) {
+           foreach ($product_id_counts as $product_id => $count) {
                 if ($count > 1) {
                     $category_ids_for_duplicate = array_fill(0, $count, $category_ids[$product_id]);
                     $category_ids_for_duplicates = array_merge($category_ids_for_duplicates, $category_ids_for_duplicate);
@@ -388,28 +378,21 @@ class ProductController extends RestBaseController
                     $category_ids_for_non_duplicates[] = $category_ids[$product_id];
                 }
             }
+
             $category_ids = array_merge($category_ids_for_duplicates, $category_ids_for_non_duplicates);
-           
             $category_ids_unique = array_unique($category_ids);
             $referral_percentages = Category::whereIn('id', $category_ids_unique)->pluck('referralPercentage', 'id')->toArray();
-            $gst_percentages = Category::whereIn('id', $category_ids_unique)->pluck('gstPercentage', 'id')->toArray();
             $referral_percentage_for_duplicates = [];
             $referral_percentage_for_non_duplicates = [];
-            $gst_percentage_for_duplicates = [];
-            $gst_percentage_for_non_duplicates = [];
             foreach ($category_ids as $category_id) {
                 $referral_percentage = $referral_percentages[$category_id];
-                $gst_percentage = $gst_percentages[$category_id];
                 if (in_array($category_id, $category_ids_unique)) {
                     $referral_percentage_for_duplicates[] = $referral_percentage;
-                    $gst_percentage_for_duplicates[] = $gst_percentage;
                 } else {
                     $referral_percentage_for_non_duplicates[] = $referral_percentage;
-                    $gst_percentage_for_non_duplicates[] = $gst_percentage;
                 }
             }
             $all_referral_percentages = array_merge($referral_percentage_for_duplicates, $referral_percentage_for_non_duplicates);
-            $all_gst_percentages = array_merge($gst_percentage_for_duplicates, $gst_percentage_for_non_duplicates);
             $total_price_percentage_sum = 0;
             foreach ($matched_cart_details as $cart_detail) {
                 $product = [
@@ -417,9 +400,7 @@ class ProductController extends RestBaseController
                 ];
         
                 $product['total_price_percentage'] = ($product['total_purchase'] * $all_referral_percentages[array_search($cart_detail->user_cart_id, $compare_uuid)]) / 100;
-                $product['final_total_price_percentage'] = ($product['total_price_percentage'] * $all_gst_percentages[array_search($cart_detail->user_cart_id, $compare_uuid)]) / 100;
-                $total_price_percentage_sum += $product['final_total_price_percentage'];
-               
+                $total_price_percentage_sum += $product['total_price_percentage'];
             }
             $response = [];
 
@@ -428,19 +409,19 @@ class ProductController extends RestBaseController
                 $response[] = [
                     'uuid' => $user->uuid,
                     'total_caseback' => $total_price_percentage_sum,
-                    'device_id' => $device_id
+                    'token' => $firebase_token[0]
                 ];
             
                 // Define URL and JSON data
                 $url = 'https://fcm.googleapis.com/fcm/send';
                 $data = array(
-                    'to' => $device_id,
+                    'to' => $firebase_token[0],
                     'notification' => array(
                         'body' => "You lost ".$total_price_percentage_sum." RS Cashback Today",
                         'title' => "Caseback"
                     )
                 );
-            
+              
                 // Initialize cURL session
                 $curl = curl_init();
                 
@@ -475,15 +456,12 @@ class ProductController extends RestBaseController
             
                 // Close cURL session
                 curl_close($curl);
+				$a[]=$response;
             }
             
             
            
         }
-        return $this->successResponse("done", $response);
+        return $this->successResponse("done", $a);
     }
-
-    // notification send //
-
-     
 }

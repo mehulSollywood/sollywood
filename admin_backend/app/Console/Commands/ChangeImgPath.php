@@ -127,7 +127,6 @@ class ChangeImgPath extends Command
                 $img->update([
                     'logo_img' => config('app.img_host').$img->logo_img,
                     'background_img' => config('app.img_host').$img->background_img,
-                    'adhar' => config('app.img_host').$img->adhar
                 ]);
             }
         } );

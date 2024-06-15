@@ -98,9 +98,18 @@ export const AdminRoutes = [
     component: lazy(() => import('views/shop-tag/tag-clone')),
   },
   {
+    path: 'shoplist',
+    component: lazy(() => import('views/shops/shopList')),
+  },
+  {
     path: 'catalog/groups',
     component: lazy(() => import('views/groups/groups')),
   },
+  {
+    path: 'shoplist',
+    component: lazy(() => import('views/shops/shopList')),
+  },
+
   {
     path: 'catalog/products',
     component: lazy(() => import('views/products/products')),
@@ -448,6 +457,10 @@ export const AdminRoutes = [
   {
     path: 'category/:uuid',
     component: lazy(() => import('views/categories/category-edit')),
+  },
+  {
+    path: 'showShopList/:id',
+    component: lazy(() => import('views/shops/showShopList')),
   },
   {
     path: 'language/:id',

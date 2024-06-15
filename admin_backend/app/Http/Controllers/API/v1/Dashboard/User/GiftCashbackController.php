@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\v1\Dashboard\Admin;
+namespace App\Http\Controllers\API\v1\Dashboard\User;
 
 use App\Helpers\ResponseError;
 use App\Http\Controllers\Controller;
@@ -14,7 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Twilio\Exceptions\ConfigurationException;
 
-class GiftCashbackController extends AdminBaseController
+class GiftCashbackController extends UserBaseController
 {
     use ApiResponse;
 
