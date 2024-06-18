@@ -16,11 +16,15 @@ const ShowShopList = () => {
   const [shopListData, setShopListData] = useState([]);
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
+  const [rowId, setRowId] = useState();
+
 
   const { id } = useParams(); // Get ID from URL parameters
 
   const handleShopClick = (row) => {
     setModalVisible(true);
+    console.log('Clicked row ID:', row.id);
+    setRowId(row.id);
   };
 
   const handleModalCancel = () => {
@@ -45,21 +49,24 @@ const ShowShopList = () => {
     }
   }, [id, t]);
 
-  const columns = [
+  const [columns, setColumns] = useState([
     {
       title: t('id'),
       dataIndex: 'id',
       key: 'id',
+      is_show: true
     },
     {
       title: t('shopname'),
       dataIndex: 'slug',
       key: 'slug',
+      is_show: true,
       render: (slug) => slug || '-',
     },
     {
       title: t('options'),
       key: 'options',
+      is_show: true,
       render: (_, row) => (
         <Space>
           <Button type='primary' title='Add Commission' onClick={() => handleShopClick(row)}>
@@ -68,21 +75,22 @@ const ShowShopList = () => {
         </Space>
       ),
     },
-  ];
+  ]);
 
   return (
     <GlobalContainer
       headerTitle={t('Shop List')}
       columns={columns}
+      setColumns={setColumns}
     >
       <Table
-        columns={columns}
+        columns={columns?.filter((items) => items.is_show)}
         dataSource={shopListData}
         rowKey={(record) => record.id}
         loading={loadingData}
         pagination={false}
       />
-      <AddCommissionModel visibility={modalVisible} handleCancel={handleModalCancel} />
+      <AddCommissionModel visibility={modalVisible} handleCancel={handleModalCancel} shopId={rowId} />
     </GlobalContainer>
   );
 };

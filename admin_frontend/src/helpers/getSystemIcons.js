@@ -1,4 +1,5 @@
 import {
+  UnorderedListOutlined,
   PieChartOutlined,
   AppstoreAddOutlined,
   ShopOutlined,
@@ -245,6 +246,8 @@ export default function getSystemIcons(icon) {
       return <MdOutlinePayment />;
     case 'warehouse':
       return <FaWarehouse />
+    case 'shoplist':
+      return <UnorderedListOutlined />  
     default:
       break;
   }

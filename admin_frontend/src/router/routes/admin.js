@@ -105,10 +105,10 @@ export const AdminRoutes = [
     path: 'catalog/groups',
     component: lazy(() => import('views/groups/groups')),
   },
-  {
-    path: 'shoplist',
-    component: lazy(() => import('views/shops/shopList')),
-  },
+  // {
+  //   path: 'shoplist',
+  //   component: lazy(() => import('views/shops/shopList')),
+  // },
 
   {
     path: 'catalog/products',

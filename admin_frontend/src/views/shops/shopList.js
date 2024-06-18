@@ -8,6 +8,7 @@ import CustomModal from '../../components/modal';
 import shopListService from '../../services/shopList';
 import { useNavigate } from 'react-router-dom'; // Import useHistory
 import { addMenu, disableRefetch } from '../../redux/slices/menu';
+import { shallowEqual, useSelector } from 'react-redux';
 
 const ShopList = () => {
   const { t } = useTranslation();
@@ -15,7 +16,7 @@ const ShopList = () => {
   const [loadingBtn, setLoadingBtn] = useState(false);
   const [loadingData, setLoadingData] = useState(true); // State to track loading of data
   const [shopListData, setShopListData] = useState([]);
- // const { activeMenu } = useSelector((state) => state.menu, shallowEqual);
+  const { activeMenu } = useSelector((state) => state.menu, shallowEqual);
   const dispatch = useDispatch();
   const [isModalVisible, setIsModalVisible] = useState(false); // State to control modal visibility
  
@@ -24,12 +25,14 @@ const ShopList = () => {
       title: t('id'),
       dataIndex: 'id',
       key: 'id',
+      is_show: true, // Example: assuming 'id' column is always shown
     },
     {
       title: t('user'),
-      dataIndex: ['firstname'],
+      dataIndex: 'firstname',
       key: 'firstname',
       render: (firstname) => firstname || '-',
+      is_show: true, // Example: assuming 'user' column is always shown
     },
     {
       title: t('options'),
@@ -41,8 +44,10 @@ const ShopList = () => {
           </Button>
         </Space>
       ),
+      is_show: true, // Example: assuming 'options' column is always shown
     },
   ]);
+  
   
   useEffect(() => {
     setLoadingBtn(true);
@@ -71,7 +76,7 @@ const ShopList = () => {
     );
     navigate(`/showShopList/${row.id}`);
   };
-  
+
   return (
     <GlobalContainer
       headerTitle={t('Shop List')}
@@ -79,7 +84,7 @@ const ShopList = () => {
       setColumns={setColumns}
     >
       <Table
-        columns={columns}
+       columns={columns?.filter((items) => items.is_show)}
         dataSource={shopListData}
         rowKey={(record) => record.id}
         loading={loadingData} // Set loading to loadingData state

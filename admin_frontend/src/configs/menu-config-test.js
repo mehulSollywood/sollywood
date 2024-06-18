@@ -143,7 +143,7 @@ const adminRoutes = [
       },
       {
         name: 'shopList',
-        icon: '',
+        icon: 'shoplist',
         url: 'shoplist',
         id: 'shoplist',
       },
